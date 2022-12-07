@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-
+from django.utils.deprecation import MiddlewareMixin
 from django.utils.module_loading import import_string as _load
 from django.core.exceptions import DisallowedHost
 from django.http import HttpResponseForbidden
@@ -22,10 +22,10 @@ def get_extra_data(request, response, body):
     return _load(conf.GET_EXTRA_DATA)(request, response, body)
 
 
-class ActivityLogMiddleware:
+class ActivityLogMiddleware(MiddlewareMixin):
     def process_request(self, request):
         request.saved_body = request.body
-        if conf.LAST_ACTIVITY and request.user.is_authenticated():
+        if conf.LAST_ACTIVITY and request.user.is_authenticated:
             getattr(request.user, 'update_last_activity', lambda: 1)()
 
     def process_response(self, request, response):
@@ -36,8 +36,9 @@ class ActivityLogMiddleware:
         return response
 
     def _write_log(self, request, response, body):
+        print('body: %s' % str(body))
         miss_log = [
-            not(conf.ANONIMOUS or request.user.is_authenticated()),
+            not(conf.ANONIMOUS or request.user.is_authenticated),
             request.method not in conf.METHODS,
             any(url in request.path for url in conf.EXCLUDE_URLS)
         ]
@@ -51,7 +52,7 @@ class ActivityLogMiddleware:
         if any(miss_log):
             return
 
-        if getattr(request, 'user', None) and request.user.is_authenticated():
+        if getattr(request, 'user', None) and request.user.is_authenticated:
             user, user_id = request.user.get_username(), request.user.pk
         elif getattr(request, 'session', None):
             user, user_id = 'anon_{}'.format(request.session.session_key), 0

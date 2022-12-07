@@ -12,8 +12,10 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from pathlib import Path
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).resolve().parent.parent
 AUTH_USER_MODEL = 'testapp.User'
 
 
@@ -42,17 +44,16 @@ INSTALLED_APPS = (
     'testapp',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
     'activity_log.middleware.ActivityLogMiddleware',  # LOG
-)
+]
 
 ROOT_URLCONF = 'testproject.urls'
 
@@ -81,7 +82,8 @@ WSGI_APPLICATION = 'testproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': BASE_DIR/'db.sqlite3'
+        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     },
     # LOG
     'logs': {
@@ -111,10 +113,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # LOG
-ACTIVITYLOG_EXCLUDE_URLS = ('/admin/activity_log/activitylog', )
-ACTIVITYLOG_EXCLUDE_STATUSES = (302, )
-ACTIVITYLOG_METHODS = ('POST', 'GET')
+#ACTIVITYLOG_EXCLUDE_URLS = ('/admin/activity_log/activitylog', )
+#ACTIVITYLOG_EXCLUDE_STATUSES = (302, )
+ACTIVITYLOG_METHODS = ('POST','PUT','DELETE',)
 ACTIVITYLOG_LAST_ACTIVITY = True
 ACTIVITYLOG_GET_EXTRA_DATA = 'testapp.models.make_extra_data'
